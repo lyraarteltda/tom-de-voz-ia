@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <script>/* gate-bootstrap: capture an early login submit before the remote gate wires up, so the first click is never lost */
+  (function(){function h(e){var f=e.target;if(f&&f.id==='gate-form'&&!window.MembershipGate){e.preventDefault();e.stopImmediatePropagation();window.__gateEarlySubmit=true;}}window.addEventListener('submit',h,true);window.__gateBootstrapDisarm=function(){window.removeEventListener('submit',h,true);};})();
+  /* returning-member revalidation state (COR-062): hide the login form flash if a session exists */
+  (function(){try{if(localStorage.getItem('maestria_member_session')){document.documentElement.className+=' is-gate-checking';var mo=new MutationObserver(function(){var g=document.getElementById('gate-screen');if(!g||!g.classList.contains('active')){document.documentElement.classList.remove('is-gate-checking');mo.disconnect();}});document.addEventListener('DOMContentLoaded',function(){var t=['gate-screen','key-screen','app-screen'];t.forEach(function(id){var el=document.getElementById(id);if(el)mo.observe(el,{attributes:true,attributeFilter:['class']});});setTimeout(function(){document.documentElement.classList.remove('is-gate-checking');mo.disconnect();},8000);});}}catch(e){}})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tom de Voz IA — Maestros da IA</title>
+  <meta name="description" content="Defina a identidade verbal da sua marca: um Guia de Voz completo, um Prompt de Voz portátil e um reescritor que transforma qualquer texto na sua voz.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://gate.maestrosdaia.com">
+  <link rel="preload" href="https://gate.maestrosdaia.com/v1/membership-gate.js" as="script">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f141b'/%3E%3Cpath d='M16 6c4 6 6 9 6 12a6 6 0 0 1-12 0c0-3 2-6 6-12z' fill='%2315a0b8'/%3E%3Ccircle cx='13.6' cy='17.5' r='2' fill='%238c7bff'/%3E%3C/svg%3E">
+</head>
+<body>
+  <div class="bg-gradient"></div>
+
+  <!-- MEMBERSHIP GATE -->
+  <div id="gate-screen" class="screen active">
+    <div class="gate-container">
+      <div class="gate-glyph" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32 6c9 13 14 20 14 27a14 14 0 0 1-28 0C18 26 23 19 32 6z" fill="#15a0b8"/>
+          <path d="M32 6c9 13 14 20 14 27a14 14 0 0 1-14 14V6z" fill="#0b7285"/>
+          <circle cx="26" cy="36" r="4.5" fill="#8c7bff"/>
+          <circle cx="24.5" cy="34.5" r="1.4" fill="#fff" opacity=".8"/>
+        </svg>
+      </div>
+      <div class="gate-header">
+        <h1 class="gradient-text">Tom de Voz IA</h1>
+        <p class="subtitle">A identidade verbal da sua marca — definida uma vez, aplicada em todo conteúdo.</p>
+        <p class="community-badge">Exclusivo para membros da Comunidade Maestros da IA</p>
+      </div>
+
+      <form id="gate-form" class="gate-form">
+        <div class="form-group">
+          <label for="gate-email">Seu e-mail cadastrado</label>
+          <input type="email" id="gate-email" placeholder="seu@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="gate-phone">Seu WhatsApp (com DDD)</label>
+          <input type="tel" id="gate-phone" placeholder="11999999999" autocomplete="tel">
+        </div>
+        <button type="submit" id="gate-submit" class="btn-primary">
+          <span class="btn-text">Verificar acesso</span>
+          <span class="btn-loading">Verificando...</span>
+        </button>
+        <p id="gate-error" class="error-message"></p>
+      </form>
+      <p class="gate-checking-note">Conferindo o seu acesso…</p>
+
+      <p class="gate-footer">Ainda não é membro? <a href="https://comunidade.maestrosdaia.com" target="_blank" rel="noopener noreferrer">Conheça a Comunidade Maestros da IA</a></p>
+    </div>
+  </div>
+
+  <!-- API KEY SETUP -->
+  <div id="key-screen" class="screen">
+    <div class="key-container">
+      <h2>Conecte sua chave de IA</h2>
+      <p class="subtitle">A ferramenta usa a <strong>sua própria chave</strong> (BYOK). Ela fica salva só no seu navegador — nunca é enviada para nossos servidores.</p>
+
+      <div id="key-inputs" class="key-inputs">
+        <!-- Populated by api-key-manager.js (OpenRouter) -->
+      </div>
+
+      <div class="key-field">
+        <label for="key-model-select">Modelo de IA</label>
+        <select id="key-model-select"></select>
+        <p class="key-note">Com uma chave da OpenRouter você escolhe entre Claude, GPT, Gemini, DeepSeek e os modelos em alta — tudo com a mesma chave.</p>
+      </div>
+
+      <div class="key-actions">
+        <button id="key-continue" class="btn-primary" disabled>Entrar na ferramenta</button>
+        <button id="key-skip" class="btn-secondary">Pular por enquanto</button>
+      </div>
+
+      <details class="key-info">
+        <summary>Como consigo uma chave da OpenRouter?</summary>
+        <div class="key-info-content">
+          <p>1. Crie uma conta em <code>openrouter.ai</code>.</p>
+          <p>2. Acesse <code>openrouter.ai/keys</code> e clique em <em>Create Key</em>.</p>
+          <p>3. Adicione créditos (a partir de US$5) e cole a chave <code>sk-or-...</code> aqui.</p>
+          <p>Uma única chave dá acesso a todos os modelos do seletor.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- MAIN APPLICATION -->
+  <div id="app-screen" class="screen">
+    <header class="app-header">
+      <div class="header-left">
+        <svg class="app-brandmark" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="14" fill="#0b1017"/>
+          <path d="M32 12c7 10 11 15 11 21a11 11 0 0 1-22 0c0-6 4-11 11-21z" fill="#15a0b8"/>
+          <circle cx="27" cy="36" r="3.4" fill="#8c7bff"/>
+        </svg>
+        <h1 class="app-title">Tom de Voz IA</h1>
+      </div>
+      <div class="header-right">
+        <a href="about.html" class="btn-icon" title="Sobre esta ferramenta" aria-label="Sobre">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </a>
+        <button id="manage-keys-btn" class="btn-icon" title="Gerenciar chaves de API" aria-label="Gerenciar chaves">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        </button>
+        <button id="logout-btn" class="btn-icon" title="Sair" aria-label="Sair">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <!-- Briefing rail -->
+      <aside class="rail">
+        <h2>Definir a voz</h2>
+        <p class="rail-sub">Conte sobre a marca. A IA compõe a identidade verbal completa.</p>
+
+        <div class="voicebar" id="voicebar" hidden>
+          <span class="vb-label">Voz atual</span>
+          <select id="voice-select" aria-label="Voz salva"></select>
+        </div>
+
+        <div class="field">
+          <label for="in-brand">Nome da marca</label>
+          <input type="text" id="in-brand" placeholder="Ex.: Ateliê Lumen" maxlength="80">
+        </div>
+        <div class="field">
+          <label for="in-niche">Nicho / segmento</label>
+          <input type="text" id="in-niche" placeholder="Ex.: joias artesanais sob encomenda" maxlength="120">
+        </div>
+        <div class="field">
+          <label for="in-audience">Público — com quem a marca fala</label>
+          <input type="text" id="in-audience" placeholder="Ex.: mulheres 28–45, celebram marcos da vida" maxlength="160">
+        </div>
+        <div class="field">
+          <label>Personalidade <span class="hint">(escolha algumas)</span></label>
+          <div class="chipset" id="personality-chips"></div>
+        </div>
+        <div class="field">
+          <label for="in-refs">Referências de voz <span class="hint">(opcional)</span></label>
+          <textarea id="in-refs" placeholder="Cole 1–2 textos que soam como sua marca, ou descreva marcas cujo jeito de falar você admira." maxlength="1200"></textarea>
+          <span class="mono-count" id="refs-count">0 / 1200</span>
+        </div>
+
+        <div class="model-row">
+          <label for="model-select">Modelo de IA</label>
+          <select id="model-select"></select>
+        </div>
+
+        <div class="rail-actions">
+          <button id="generate-btn" class="btn-primary">Gerar Guia de Voz</button>
+          <button id="examples-btn" class="btn-ghost">Preencher com um exemplo</button>
+        </div>
+      </aside>
+
+      <!-- Ink canvas -->
+      <section class="canvas">
+        <div class="tabs" role="tablist">
+          <button class="tab on" data-tab="guide" role="tab">Guia de Voz</button>
+          <button class="tab" data-tab="prompt" role="tab">Prompt de Voz</button>
+          <button class="tab" data-tab="rewrite" role="tab">Reescritor</button>
+          <button class="tab" data-tab="library" role="tab">Minhas vozes</button>
+        </div>
+
+        <!-- GUIDE -->
+        <div class="tabpane on" id="pane-guide">
+          <div id="guide-empty" class="placeholder-state">
+            <svg class="ps-glyph" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M32 8c8 11 13 17 13 23a13 13 0 0 1-26 0C19 25 24 19 32 8z" fill="#15a0b8" opacity=".9"/><circle cx="26" cy="33" r="4" fill="#8c7bff"/></svg>
+            <h3>Sua voz ainda não foi escrita</h3>
+            <p>Preencha o briefing ao lado e clique em <strong>Gerar Guia de Voz</strong>. A IA vai compor a essência, os traços, o léxico, a régua de tom por canal e exemplos antes → depois.</p>
+          </div>
+          <div id="guide-loading" class="placeholder-state" hidden>
+            <div class="loader"><span class="spinner"></span> Compondo a voz da sua marca…</div>
+          </div>
+          <div id="guide-error" class="err-inline" hidden></div>
+          <div id="guide-output" hidden>
+            <div class="guide-toolbar">
+              <button class="btn-secondary" id="dl-pdf">Baixar PDF</button>
+              <button class="btn-secondary" id="dl-png">Baixar PNG</button>
+              <button class="btn-secondary" id="copy-md">Copiar (Markdown)</button>
+            </div>
+            <div class="guide" id="guide-card"></div>
+          </div>
+        </div>
+
+        <!-- PROMPT -->
+        <div class="tabpane" id="pane-prompt">
+          <div id="prompt-empty" class="placeholder-state">
+            <svg class="ps-glyph" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="14" width="44" height="36" rx="6" stroke="#8c7bff" stroke-width="3"/><path d="M19 26h26M19 33h26M19 40h16" stroke="#8c7bff" stroke-width="3" stroke-linecap="round"/></svg>
+            <h3>Prompt de Voz portátil</h3>
+            <p>Depois de gerar o Guia, aqui aparece um prompt pronto para colar no ChatGPT, Claude, Gemini ou em qualquer outra IA — e ela passa a escrever sempre na voz da sua marca.</p>
+          </div>
+          <div id="prompt-output" class="prompt-wrap" hidden>
+            <h3>Prompt de Voz</h3>
+            <p class="pw-sub">Cole isto antes do seu pedido em qualquer IA. Ela vai responder na voz da sua marca.</p>
+            <div class="prompt-box" id="prompt-box"></div>
+            <div class="prompt-actions">
+              <button class="btn-violet" id="copy-prompt">Copiar prompt</button>
+              <button class="btn-secondary" id="dl-prompt">Baixar .txt</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- REWRITE -->
+        <div class="tabpane" id="pane-rewrite">
+          <div id="rewrite-locked" class="placeholder-state">
+            <svg class="ps-glyph" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 44L40 18l6 6-26 26H14v-6z" stroke="#15a0b8" stroke-width="3" stroke-linejoin="round"/><path d="M37 21l6 6" stroke="#8c7bff" stroke-width="3"/></svg>
+            <h3>Reescreva qualquer texto na sua voz</h3>
+            <p>Gere um Guia de Voz primeiro. Depois, cole aqui qualquer rascunho e a ferramenta reescreve na voz definida — quantas vezes quiser.</p>
+          </div>
+          <div id="rewrite-output" class="rw-wrap" hidden>
+            <h3>Reescrever na minha voz</h3>
+            <p class="rw-sub">Cole um texto genérico e escolha o canal. A IA aplica a voz de <strong id="rw-brand-name">sua marca</strong>.</p>
+            <div class="field">
+              <label for="rw-input">Texto para reescrever</label>
+              <textarea id="rw-input" placeholder="Cole aqui a legenda, o e-mail, o anúncio ou qualquer texto…" maxlength="4000"></textarea>
+              <span class="mono-count" id="rw-count">0 / 4000</span>
+            </div>
+            <div class="rw-controls">
+              <div class="field">
+                <label for="rw-channel">Canal</label>
+                <select id="rw-channel">
+                  <option value="Geral">Geral</option>
+                  <option value="Instagram">Instagram (legenda)</option>
+                  <option value="E-mail">E-mail</option>
+                  <option value="LinkedIn">LinkedIn</option>
+                  <option value="WhatsApp">WhatsApp</option>
+                  <option value="Site/Página">Site / Página</option>
+                  <option value="Anúncio">Anúncio</option>
+                </select>
+              </div>
+              <button id="rewrite-btn" class="btn-primary">Reescrever</button>
+            </div>
+            <div id="rewrite-err" class="err-inline" hidden></div>
+            <div id="rewrite-result" class="rw-result" hidden>
+              <div class="rw-col antes"><span class="rw-lbl">Antes</span><div class="rw-text" id="rw-before"></div></div>
+              <div class="rw-col depois"><span class="rw-lbl">Na sua voz</span><div class="rw-text" id="rw-after"></div>
+                <div style="margin-top:12px"><button class="btn-secondary" id="copy-rewrite">Copiar</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIBRARY -->
+        <div class="tabpane" id="pane-library">
+          <div id="library-empty" class="placeholder-state">
+            <svg class="ps-glyph" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="14" width="12" height="36" rx="2" stroke="#15a0b8" stroke-width="3"/><rect x="28" y="14" width="12" height="36" rx="2" stroke="#8c7bff" stroke-width="3"/><path d="M44 16l8 2-7 34-8-2" stroke="#15a0b8" stroke-width="3" stroke-linejoin="round"/></svg>
+            <h3>Nenhuma voz salva ainda</h3>
+            <p>Cada voz que você gera é salva aqui no seu navegador. Agências e social medias podem guardar a voz de vários clientes e reabrir quando quiser.</p>
+          </div>
+          <div id="library-list" class="lib-list" hidden></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Feito com carinho para a comunidade <strong>Maestros da IA</strong></p>
+      <p class="footer-links">
+        <a href="privacy-policy.html" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>
+        <span class="footer-sep">·</span>
+        <a href="data-deletion.html" target="_blank" rel="noopener noreferrer">Solicitar Exclusão de Dados</a>
+      </p>
+    </footer>
+  </div>
+
+  <!-- API Key Manager Modal (toggled via style.display by api-key-manager.js; NOT the hidden attr — [hidden]!important would beat inline flex, COR-052) -->
+  <div id="key-modal" class="modal" style="display:none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Gerenciar Chaves de API</h3>
+        <button id="modal-close" class="btn-icon" aria-label="Fechar">&times;</button>
+      </div>
+      <div id="modal-key-inputs" class="key-inputs"></div>
+      <div class="key-field">
+        <label for="model-select-modal">Modelo de IA</label>
+        <select id="model-select-modal"></select>
+      </div>
+      <div class="modal-actions">
+        <button id="modal-save" class="btn-primary">Salvar</button>
+        <button id="modal-clear" class="btn-danger">Limpar todas as chaves</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="config.js"></script>
+  <script src="kill-switch.js"></script>
+  <script src="rate-limiter.js"></script>
+  <script src="https://gate.maestrosdaia.com/v1/membership-gate.js"></script>
+  <script src="api-key-manager.js"></script>
+  <script src="feedback-widget.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
